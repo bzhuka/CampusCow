@@ -1,0 +1,36 @@
+Campus Cow is a mobile location-based game.  The users interact with each other by moving around in real life, and the goal of 
+the game is to find one designated user before anyone else does.  This app uses the following wireless technologies: Wifi, 4G, 
+and GPS.
+
+Implementation
+
+Client	 - We implemented the client-side features with Java, using Android Studio. There are two activities, a home screen and 
+a game screen. The home screen is a dynamic lobby where each player can choose their player type as well as see all the other 
+players in the game. The lobby is updated in real time, so if another player joins late, they will be added to the end of the 
+list on everyone’s device. Adding yourself to the game will instantaneously add your player and type to everyone’s screen. The 
+client requests a valid ID from the server while obtaining a JSON Object with everyone else’s ID and player type (Cow or Cowboy). 
+The game screen is integrated with the Google Maps SDK. Markers will be added to the map and dynamically re-positioned to represent 
+the actual location of all the users in the game. We used a hashmap that maps from the player ID to a pair of Doubles that represent 
+that player’s latitude and longitude. We also implemented a hashmap for every geo-marker on the map by mapping the player ID to a 
+custom GeoMarker class. Lastly, we have a hashmap from the player’s ID to that player’s current distance from the cow. We chose 
+hashmaps for fast look up efficiency, because the data structures are always changing, due to variables being requested and sent to 
+the server very rapidly. The last hashmap makes it convenient to color each marker with a corresponding color that represents how 
+far that player is from the cow, RED being hot (within 200m of cow), ORANGE being warm (within 400m of cow), YELLOW being neutral 
+(within 600m of the cow), and BLUE being cold (farther than 600m from the cow). The game screen class is in charge of sending that 
+device’s latitude and longitude to the server while receiving a JSON Array of JSON Objects, which we parse and store into our local 
+data structures. The server provides all other device locations, so the game screen will look the same across multiple devices. Lastly, 
+the game screen activity is in charge of implementing the game logic of determining if a player won, and if multiple players are close 
+to a cow, which player won (closest cowboy to the cow). After receiving the updated positions from the server, an algorithm checks the 
+distance of each cowboy to the cow. If only one cowboy is within 50 meters of the cow, that cowboy wins, and everyone’s screen receives 
+an alert indicating who won using their player ID. If multiple cowboys are within 50m of the cow, the algorithm will remember the ID of 
+the closest cowboy when looping, and will only return the player ID of the closest cowboy. 
+
+Server - We implemented the server using Python making heavy use of the Flask microframework.  This enabled us to set up a local 
+server where we could give our server information via the url and retrieve information via JSON objects.  Our python server used a 
+dictionary mapping each player’s id to their last known location (stored as a tuple of ints).  We also had an integer keeping track of 
+how many players there were in the game, and a boolean keeping track of whether there is a cow or not.  Depending on the url accessed, 
+our server would do different things, such as update the dictionary, return locations, add players, or empty all of its data structures. 
+All data sent from the server is sent as either json objects or json arrays, for simple access from our client.
+We used Amazon Web Services to deploy our Flask server so that our phones could access it. We chose to use Elastic Beanstalk to quickly 
+deploy our server in the AWS Cloud without having to worry about the details of the infrastructure that runs the application. Elastic 
+Beanstalk automatically handles the capacity provisioning, load balancing, scaling, and application health monitoring. 
